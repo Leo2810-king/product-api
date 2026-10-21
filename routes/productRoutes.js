@@ -20,12 +20,12 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find();
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(200).json(products);
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách products:', err);
+    return res.status(500).json({ message: err.message || 'Lỗi Server' });
   }
 });
-
 // 3. READ ONE: Lấy thông tin 1 sản phẩm theo pid
 router.get('/:pid', async (req, res) => {
   try {

@@ -1,8 +1,3 @@
-const crypto = require('crypto');
-
-
-require('dotenv').config();
-const express = require('express');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -12,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Middleware đọc dữ liệu JSON trong body request
+// Middleware đọc dữ liệu JSON
 app.use(express.json());
 
 // Kết nối MongoDB
