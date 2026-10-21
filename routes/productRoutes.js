@@ -1,6 +1,7 @@
-const crypto = require('crypto');
+
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const Product = require('../models/Product');
 
 // 1. CREATE: Tạo sản phẩm mới

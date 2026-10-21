@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-global.crypto = crypto; // Khai báo crypto thành biến toàn cục cho toàn bộ app
+
 
 require('dotenv').config();
 const express = require('express');
