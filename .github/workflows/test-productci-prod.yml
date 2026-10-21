@@ -1,4 +1,4 @@
-name: Production CI Pipeline - Product API
+name: Production CI/CD Pipeline - Product API
 
 on:
   push:
@@ -7,11 +7,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-  integration-test:
-    name: Run CRUD & MongoDB Integration Tests
+  build-and-deploy:
+    name: Run Integration Test & Push to Docker Hub
     runs-on: ubuntu-latest
 
-    # Khởi chạy service MongoDB container trực tiếp trên máy ảo GitHub
     services:
       mongodb:
         image: mongo:latest
@@ -24,47 +23,35 @@ jobs:
           --health-retries 5
 
     steps:
-      # 1. Checkout mã nguồn dự án
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # 2. Thiết lập môi trường Node.js 18
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      # 3. Cài đặt các dependencies (sử dụng npm ci để tối ưu tốc độ và tính đồng nhất)
       - name: Install Dependencies
         run: npm ci
 
-      # 4. Kiểm tra cú pháp mã nguồn (Linting / Syntax Check)
-      - name: Check Code Syntax
-        run: node --check server.js
+      - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 5. Khởi chạy thử nghiệm Server & Kiểm tra kết nối MongoDB
-      - name: Test Server & MongoDB Connection
-        env:
-          PORT: 3000
-          MONGODB_URI: mongodb://localhost:27017/product_db_test
-        run: |
-          echo "==== STARTING PRODUCTION CI TESTING ===="
-          # Chạy server ở chế độ ngầm
-          node server.js &
-          SERVER_PID=$!
-          
-          # Đợi 5 giây để server và MongoDB thiết lập kết nối
-          sleep 5
-          
-          # Kiểm tra healthcheck endpoint API
-          curl -f http://localhost:3000/api/products || exit 1
-          
-          echo "==== API & MONGODB INTEGRATION TEST PASSED ===="
-          kill $SERVER_PID
+      - name: Set up Docker Buildx
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/setup-buildx-action@v3
 
-      # 6. Build thử nghiệm Docker Image sản phẩm
-      - name: Build Docker Image
-        run: |
-          docker build -t product-api:prod .
-          docker images
+      - name: Build and Push Docker Image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/product-api:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/product-api:${{ github.sha }}
