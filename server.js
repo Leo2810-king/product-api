@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Kết nối MongoDB
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Kết nối thành công đến MongoDB container (nammongodb)'))
+  .then(() => console.log('Kết nối thành công đến MongoDB container'))
   .catch((err) => console.error('Lỗi kết nối MongoDB:', err));
 
 // Routes
