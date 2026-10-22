@@ -1,10 +1,14 @@
+version: '3.8'
+
 services:
-  mongodb:
+  nammongodb:
     image: mongo:latest
     container_name: nammongodb-prod
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_prod_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -12,6 +16,7 @@ services:
       retries: 5
 
   product-api:
+    build: .
     image: leoadmin28/product-api:latest
     container_name: product-api-prod
     restart: always
@@ -19,7 +24,10 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
-      MONGODB_URI: mongodb://mongodb:27017/product_db
+      MONGODB_URI: mongodb://nammongodb:27017/productdb
     depends_on:
-      mongodb:
+      nammongodb:
         condition: service_healthy
+
+volumes:
+  mongo_prod_data:
