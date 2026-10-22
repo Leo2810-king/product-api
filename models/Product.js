@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
-const crypto = require('crypto');
+
 const productSchema = new mongoose.Schema({
-  pid: {
-  type: String,
-  required: true
-  },
   pid: {
     type: String,
     required: true,
