@@ -17,6 +17,10 @@ mongoose.connect(MONGODB_URI)
 
 // Routes
 app.use('/api/products', productRoutes);
+app.get('/health', (req, res) => {
+  const ok = mongoose.connection.readyState === 1;
+  res.status(ok ? 200 : 503).json({ status: ok ? 'OK' : 'ERROR', mongodb: ok ? 'connected' : 'disconnected' });
+});
 
 // Khởi chạy server
 app.listen(PORT, () => {
